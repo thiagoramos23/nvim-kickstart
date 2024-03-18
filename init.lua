@@ -87,11 +87,11 @@ P.S. You can delete this when you're done too. It's your config now! :)
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.mapleader = ','
+vim.g.maplocalleader = ','
 
 -- Set to true if you have a Nerd Font installed
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -116,7 +116,7 @@ vim.opt.showmode = false
 vim.opt.clipboard = 'unnamedplus'
 
 -- Enable break indent
-vim.opt.breakindent = true
+vim.opt.breakindent = false
 
 -- Save undo history
 vim.opt.undofile = true
@@ -152,7 +152,20 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 20
+
+-- Add any additional options here
+local g = vim.g
+g.mapleader = ','
+
+-- Vim Test
+g['rspec_runner'] = 'os_x_iterm2'
+g['test#strategy'] = 'vimux'
+g['VimuxHeight'] = '30'
+
+vim.opt.foldlevel = 3
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -164,7 +177,7 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
+vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
@@ -175,20 +188,80 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
--- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
-
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
---  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<leader>ww', '<C-W>p', { desc = 'Other window', remap = true })
+vim.keymap.set('n', '<leader>wd', '<C-W>c', { desc = 'Delete window', remap = true })
+vim.keymap.set('n', 'ss', '<C-W>s', { desc = 'Split window below', remap = true })
+vim.keymap.set('n', 'vv', '<C-W>v', { desc = 'Split window right', remap = true })
+
+-- Text Misc
+vim.keymap.set('n', 'L', '$')
+vim.keymap.set('n', 'H', '^')
+vim.keymap.set('v', 'L', '$')
+vim.keymap.set('v', 'H', '^')
+vim.keymap.set('n', 'U', '<C-r>')
+
+-- TMUX
+vim.keymap.set('n', '<C-h>', vim.cmd.TmuxNavigateLeft)
+vim.keymap.set('n', '<C-j>', vim.cmd.TmuxNavigateDown)
+vim.keymap.set('n', '<C-k>', vim.cmd.TmuxNavigateUp)
+vim.keymap.set('n', '<C-l>', vim.cmd.TmuxNavigateRight)
+
+-- Show Git blame
+vim.keymap.set('n', '<leader>gb', ':Gitsigns toggle_current_line_blame<cr>')
+
+-- Vim Test
+vim.keymap.set('n', '<leader>rn', function()
+  g['test#elixir#exunit#executable'] = 'mix test'
+  vim.cmd [[exec ":TestNearest"]]
+end)
+vim.keymap.set('n', '<leader>rf', function()
+  g['test#elixir#exunit#executable'] = 'mix test'
+  vim.cmd [[exec ":TestFile"]]
+end)
+vim.keymap.set('n', '<leader>rs', function()
+  g['test#elixir#exunit#executable'] = 'mix test'
+  vim.cmd [[exec ":TestSuite"]]
+end)
+vim.keymap.set('n', '<leader>rl', function()
+  g['test#elixir#exunit#executable'] = 'mix test'
+  vim.cmd [[exec ":TestLast"]]
+end)
+vim.keymap.set('n', '<leader>rv', function()
+  g['test#elixir#exunit#executable'] = 'mix test'
+  vim.cmd [[exec ":TestVisit"]]
+end)
+vim.keymap.set('n', '<leader>rd', function()
+  g['test#elixir#exunit#executable'] = 'iex --dbg pry -S mix test'
+  vim.cmd [[exec ":TestNearest" .. "--trace"]]
+end)
+
+-- FZF
+
+vim.keymap.set('n', '<C-p>', "<cmd>lua require('fzf-lua').files()<CR>", { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>.', "<cmd>lua require('fzf-lua').buffers()<CR>", { noremap = true, silent = true })
+vim.keymap.set('n', '<C-q>', "<cmd>lua require('fzf-lua').quickfix()<CR>", { noremap = true, silent = true })
+vim.keymap.set('n', '<C-f>', "<cmd>lua require('fzf-lua').live_grep()<CR>", { noremap = true, silent = true })
+vim.keymap.set('n', '<C-g>', "<cmd>lua require('fzf-lua').git_commits()<CR>", { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>g', "<cmd>lua require('fzf-lua').grep_cword()<CR>", { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>f', "<cmd>lua require('fzf-lua').grep_cWORD()<CR>", { noremap = true, silent = true })
+
+-- Navigate Buffers
+vim.keymap.set('n', '<leader>v', ':bnext<CR>', opts)
+vim.keymap.set('n', '<leader>z', ':bprevious<CR>', opts)
+vim.keymap.set('n', '<leader>d', ':BufDel<CR>', opts)
+vim.keymap.set('n', '<C-s>', '<Cmd>BufferPick<CR>', opts)
+vim.keymap.set('n', '<leader>bo', function()
+  vim.cmd [[exec ":%bd\|e#\|bd#"]]
+end)
+
+-- Jump To Test
+local jump = require 'jump-to-test-plugin'
+vim.keymap.set('n', '<leader>jt', function()
+  jump.openTest()
+end)
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -488,7 +561,7 @@ require('lazy').setup({
 
           -- Rename the variable under your cursor
           --  Most Language Servers support renaming across files, etc.
-          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('<leader>rm', vim.lsp.buf.rename, '[R]ena[m]e')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
@@ -541,8 +614,8 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
+        pyright = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -566,6 +639,11 @@ require('lazy').setup({
             },
           },
         },
+
+        -- lexical = {
+        --   filetypes = { 'elixir', 'eelixir', 'heex' },
+        --   cmd = { '/Users/thiago/personal/open_source/lexical/_build/dev/package/lexical/bin/start_lexical.sh' },
+        -- },
       }
 
       -- Ensure the servers and tools above are installed
@@ -596,6 +674,31 @@ require('lazy').setup({
           end,
         },
       }
+
+      local lspconfig = require 'lspconfig'
+      local configs = require 'lspconfig.configs'
+
+      local lexical_config = {
+        filetypes = { 'elixir', 'eelixir', 'heex' },
+        cmd = { '/Users/thiago/personal/open_source/lexical/_build/dev/package/lexical/bin/start_lexical.sh' },
+        settings = {},
+      }
+
+      if not configs.lexical then
+        configs.lexical = {
+          default_config = {
+            filetypes = lexical_config.filetypes,
+            cmd = lexical_config.cmd,
+            root_dir = function(fname)
+              return lspconfig.util.root_pattern('mix.exs', '.git')(fname) or vim.loop.os_homedir()
+            end,
+            -- optional settings
+            settings = lexical_config.settings,
+          },
+        }
+      end
+
+      lspconfig.lexical.setup {}
     end,
   },
 
@@ -707,17 +810,17 @@ require('lazy').setup({
           --
           -- <c-l> will move you to the right of each of the expansion locations.
           -- <c-h> is similar, except moving you backwards.
-          ['<C-l>'] = cmp.mapping(function()
-            if luasnip.expand_or_locally_jumpable() then
-              luasnip.expand_or_jump()
-            end
-          end, { 'i', 's' }),
-          ['<C-h>'] = cmp.mapping(function()
-            if luasnip.locally_jumpable(-1) then
-              luasnip.jump(-1)
-            end
-          end, { 'i', 's' }),
-
+          -- ['<C-l>'] = cmp.mapping(function()
+          --   if luasnip.expand_or_locally_jumpable() then
+          --     luasnip.expand_or_jump()
+          --   end
+          -- end, { 'i', 's' }),
+          -- ['<C-h>'] = cmp.mapping(function()
+          --   if luasnip.locally_jumpable(-1) then
+          --     luasnip.jump(-1)
+          --   end
+          -- end, { 'i', 's' }),
+          --
           -- For more advanced luasnip keymaps (e.g. selecting choice nodes, expansion) see:
           --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
         },
@@ -793,7 +896,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'elixir', 'erlang', 'heex', 'eex', 'json' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -837,7 +940,7 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {
   ui = {
     -- If you have a Nerd Font, set icons to an empty table which will use the
@@ -859,6 +962,19 @@ require('lazy').setup({
     },
   },
 })
+
+-- Text Misc
+vim.keymap.set('n', 'L', '$')
+vim.keymap.set('n', 'H', '^')
+vim.keymap.set('v', 'L', '$')
+vim.keymap.set('v', 'H', '^')
+vim.keymap.set('n', 'U', '<C-r>')
+
+-- TMUX
+vim.keymap.set('n', '<C-h>', vim.cmd.TmuxNavigateLeft)
+vim.keymap.set('n', '<C-j>', vim.cmd.TmuxNavigateDown)
+vim.keymap.set('n', '<C-k>', vim.cmd.TmuxNavigateUp)
+vim.keymap.set('n', '<C-l>', vim.cmd.TmuxNavigateRight)
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
